@@ -2,10 +2,14 @@ package com.example.lojasocial.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val IpcaBlue = Color(0xFF003A8F)
+val IpcaBlueLight = Color(0xFF1565C0)
+val IpcaBlueDark = Color(0xFF002766)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val IpcaBackgroundLight = Color(0xFFF4F6F8)
+val IpcaBackgroundDark = Color(0xFF121212)
+
+val IpcaSurfaceLight = Color(0xFFFFFFFF)
+val IpcaSurfaceDark = Color(0xFF1E1E1E)
+
+val IpcaError = Color(0xFFB00020)
