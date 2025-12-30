@@ -99,7 +99,7 @@ fun LoginScreen(
             )
 
             is ResultWrapper.Success<*> -> {
-                nav.navigate("home") {
+                nav.navigate("main") {
                     popUpTo("login") { inclusive = true }
                 }
             }

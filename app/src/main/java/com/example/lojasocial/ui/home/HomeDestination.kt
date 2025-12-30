@@ -20,6 +20,4 @@ val homeOptions = listOf(
     HomeDestination("Relatórios", Icons.Filled.BarChart, "reports"),
     HomeDestination("Alertas", Icons.Filled.Warning, "alerts"),
 
-    HomeDestination("Minha Conta", Icons.Filled.AccountCircle, "profile"),
-
 )
