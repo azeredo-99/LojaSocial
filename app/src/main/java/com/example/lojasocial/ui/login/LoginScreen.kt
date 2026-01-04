@@ -20,6 +20,19 @@ fun LoginScreen(
 ) {
     val uiState = vm.uiState
 
+
+    LaunchedEffect(Unit) {
+        val user = com.google.firebase.auth.FirebaseAuth
+            .getInstance()
+            .currentUser
+
+        if (user != null) {
+            nav.navigate("main") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +58,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        //  EMAIL
+        // EMAIL
         OutlinedTextField(
             value = vm.email,
             onValueChange = { vm.email = it },
@@ -56,7 +69,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        //  PASSWORD
+        // PASSWORD
         OutlinedTextField(
             value = vm.password,
             onValueChange = { vm.password = it },
@@ -68,7 +81,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        //  BOTÃO LOGIN
+        // BOTÃO LOGIN
         Button(
             onClick = { vm.login() },
             modifier = Modifier.fillMaxWidth()
@@ -89,7 +102,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        //  ESTADOS
+        // ESTADOS
         when (uiState) {
             is ResultWrapper.Loading -> CircularProgressIndicator()
 

@@ -1,26 +1,33 @@
 package com.example.lojasocial.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.compose.foundation.layout.padding
 import androidx.navigation.compose.rememberNavController
+import com.example.lojasocial.ui.beneficiaries.*
+import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
-import com.example.lojasocial.ui.help.HelpScreen
 
 @Composable
-fun MainScaffold(rootNavController: NavHostController) {
-
-    // NavController INTERNO
+fun MainScaffold(
+    rootNavController: NavHostController
+) {
     val innerNavController = rememberNavController()
 
     Scaffold(
-        bottomBar = { BottomBar(innerNavController) }
+        bottomBar = {
+            BottomBar(innerNavController)
+        }
     ) { padding ->
 
         NavHost(
@@ -29,19 +36,74 @@ fun MainScaffold(rootNavController: NavHostController) {
             modifier = Modifier.padding(padding)
         ) {
 
+            /* ---------------- HOME ---------------- */
             composable("home") {
                 HomeScreen(innerNavController)
             }
 
+            /* ---------------- BENEFICIÁRIOS ---------------- */
+            composable("beneficiaries") {
+                BeneficiariesScreen(innerNavController)
+            }
+
+            composable("addBeneficiary") {
+                AddBeneficiaryScreen(
+                    nav = innerNavController,
+                    vm = hiltViewModel()
+                )
+            }
+
+            composable("beneficiaryDetail/{id}") { backStack ->
+                val id = backStack.arguments?.getString("id") ?: return@composable
+                val vm = hiltViewModel<BeneficiariesViewModel>()
+
+                BeneficiaryDetailScreen(
+                    nav = innerNavController,
+                    vm = vm,
+                    beneficiaryId = id
+                )
+            }
+
+            composable("editBeneficiary/{id}") { backStack ->
+                val id = backStack.arguments?.getString("id") ?: return@composable
+                val vm = hiltViewModel<BeneficiariesViewModel>()
+
+                // Os dados são carregados
+                LaunchedEffect(Unit) {
+                    vm.load()
+                }
+
+                val beneficiary = vm.beneficiaries.firstOrNull { it.id == id }
+
+                if (beneficiary != null) {
+                    EditBeneficiaryScreen(
+                        nav = innerNavController,
+                        vm = vm,
+                        beneficiary = beneficiary
+                    )
+                } else {
+
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
+
+            /* ---------------- PERFIL ---------------- */
             composable("profile") {
                 ProfileScreen(rootNavController)
             }
 
+            /* ---------------- AJUDA ---------------- */
             composable("help") {
                 HelpScreen()
             }
 
-            composable("beneficiaries") { PlaceholderScreen("Beneficiários") }
+            /* ---------------- EM DESENVOLVIMENTO ---------------- */
             composable("inventory") { PlaceholderScreen("Inventário") }
             composable("donations") { PlaceholderScreen("Doações") }
             composable("deliveries") { PlaceholderScreen("Entregas") }
@@ -51,4 +113,3 @@ fun MainScaffold(rootNavController: NavHostController) {
         }
     }
 }
-

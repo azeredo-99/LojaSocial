@@ -15,26 +15,30 @@ fun HomeGridItem(
 ) {
     Card(
         modifier = Modifier
+            .fillMaxWidth()
             .aspectRatio(1f)
             .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(6.dp)
+        )
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Icon(
                 imageVector = item.icon,
                 contentDescription = item.title,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = item.title,
@@ -43,4 +47,3 @@ fun HomeGridItem(
         }
     }
 }
-

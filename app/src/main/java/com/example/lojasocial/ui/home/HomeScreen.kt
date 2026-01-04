@@ -19,7 +19,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Loja Social") },
+                title = {
+                    Text(
+                        text = "Loja Social",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 actions = {
                     TextButton(
                         onClick = {
@@ -39,8 +44,9 @@ fun HomeScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
+                .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
