@@ -1,103 +1,66 @@
 package com.example.lojasocial.repository
 
+import android.annotation.SuppressLint
 import com.example.lojasocial.models.Beneficiary
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 object BeneficiaryRepository {
 
-    private val beneficiaries = mutableListOf(
-        Beneficiary(
-            id = "1",
-            name = "João Silva",
-            studentNumber = "24334",
-            course = "Engenharia de Sistemas Informáticos",
-            active = true
-        ),
-        Beneficiary(
-            id = "2",
-            name = "Ana Costa",
-            studentNumber = "24567",
-            course = "Gestão",
-            active = true
-        ),
-        Beneficiary(
-            id = "3",
-            name = "Guilherme Azeredo",
-            studentNumber = "23510",
-            course = "Engenharia de Sistemas Informáticos",
-            active = true
-        ),
-        Beneficiary(
-            id = "4",
-            name = "Pedro Teixeira",
-            studentNumber = "27427",
-            course = "Engenharia Industrial",
-            active = false
-        ),
-        Beneficiary(
-            id = "5",
-            name = "Tiago Augusto",
-            studentNumber = "28123",
-            course = "Fiscalidade",
-            active = true
-        ),
-        Beneficiary(
-            id = "6",
-            name = "Rita Seabra",
-            studentNumber = "20375",
-            course = "Design Gráfico",
-            active = true
-        ),
-        Beneficiary(
-            id = "7",
-            name = "Hugo Correia",
-            studentNumber = "28259",
-            course = "Gestão Hoteleira",
-            active = false
-        ),
-        Beneficiary(
-            id = "8",
-            name = "Manuel Rodrigues",
-            studentNumber = "21385",
-            course = "Gestão de Empresas",
-            active = true
-        ),
-        Beneficiary(
-            id = "9",
-            name = "Bruno Cunha",
-            studentNumber = "29256",
-            course = "Gestão de Empresas",
-            active = false
-        ),
-        Beneficiary(
-            id = "10",
-            name = "Renato Figueiredo",
-            studentNumber = "29865",
-            course = "Gestão de Empresas",
-            active = true
-        ),
-    )
+    @SuppressLint("StaticFieldLeak")
+    private val db = FirebaseFirestore.getInstance()
 
-    fun getAll(): List<Beneficiary> = beneficiaries
+    private const val COLLECTION = "beneficiaries"
 
-    fun getById(id: String): Beneficiary? =
-        beneficiaries.firstOrNull { it.id == id }
+    /* ---------------- GET ALL ---------------- */
+    suspend fun getAll(): List<Beneficiary> {
+        return db.collection(COLLECTION)
+            .get()
+            .await()
+            .documents
+            .mapNotNull { doc ->
+                doc.toObject(Beneficiary::class.java)
+                    ?.copy(id = doc.id)
+            }
+    }
 
-    fun add(beneficiary: Beneficiary) {
-        beneficiaries.add(
-            beneficiary.copy(
-                id = (beneficiaries.size + 1).toString()
+    /* ---------------- GET BY ID ---------------- */
+    suspend fun getById(id: String): Beneficiary? {
+        val doc = db.collection(COLLECTION)
+            .document(id)
+            .get()
+            .await()
+
+        return doc.toObject(Beneficiary::class.java)
+            ?.copy(id = doc.id)
+    }
+
+    /* ---------------- ADD ---------------- */
+    suspend fun add(beneficiary: Beneficiary) {
+        db.collection(COLLECTION)
+            .add(
+                beneficiary.copy(id = "")
             )
-        )
+            .await()
     }
 
-    fun update(updated: Beneficiary) {
-        val index = beneficiaries.indexOfFirst { it.id == updated.id }
-        if (index != -1) {
-            beneficiaries[index] = updated
-        }
+    /* ---------------- UPDATE ---------------- */
+    suspend fun update(beneficiary: Beneficiary) {
+        if (beneficiary.id.isBlank()) return
+
+        db.collection(COLLECTION)
+            .document(beneficiary.id)
+            .set(
+                beneficiary.copy(id = "")
+            )
+            .await()
     }
 
-    fun remove(id: String) {
-        beneficiaries.removeAll { it.id == id }
+    /* ---------------- REMOVE ---------------- */
+    suspend fun remove(id: String) {
+        db.collection(COLLECTION)
+            .document(id)
+            .delete()
+            .await()
     }
 }

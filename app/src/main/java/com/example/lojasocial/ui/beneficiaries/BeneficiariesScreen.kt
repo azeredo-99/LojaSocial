@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,8 +27,8 @@ fun BeneficiariesScreen(
     }
 
     val filtered = vm.beneficiaries.filter {
-        it.name.contains(search, true) ||
-                it.studentNumber.contains(search, true)
+        it.name.contains(search, ignoreCase = true) ||
+                it.studentNumber.contains(search, ignoreCase = true)
     }
 
     Scaffold(
@@ -36,12 +37,18 @@ fun BeneficiariesScreen(
                 title = { Text("Beneficiários") },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Voltar"
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { nav.navigate("addBeneficiary") }) {
-                        Icon(Icons.Default.Add, null)
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Adicionar beneficiário"
+                        )
                     }
                 }
             )
@@ -54,6 +61,7 @@ fun BeneficiariesScreen(
                 .padding(16.dp)
         ) {
 
+            /* Pesquisa */
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
@@ -64,7 +72,42 @@ fun BeneficiariesScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            /* 🔄 LOADING */
+            if (vm.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+                return@Column
+            }
+
+            /* ERRO */
+            vm.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                return@Column
+            }
+
+            /* VAZIO */
+            if (filtered.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Nenhum beneficiário encontrado")
+                }
+                return@Column
+            }
+
+            /* LISTA */
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(filtered) { beneficiary ->
                     BeneficiaryItem(
                         beneficiary = beneficiary,
