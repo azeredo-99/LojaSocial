@@ -20,6 +20,8 @@ import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
+import com.example.lojasocial.ui.inventory.InventoryScreen
+import com.example.lojasocial.ui.products.AddProductScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
 
 @Composable
@@ -92,15 +94,21 @@ fun MainScaffold(
 
             /* ---------------- ENTREGAS (HISTÓRICO GLOBAL) ---------------- */
             composable("deliveries") {
-                DeliveriesHistoryScreen(
-                    nav = innerNavController
-                )
+                DeliveriesHistoryScreen(nav = innerNavController)
             }
 
             composable("addDelivery") {
-                AddDeliveryScreen(
-                    nav = innerNavController
-                )
+                AddDeliveryScreen(nav = innerNavController)
+            }
+
+            /* ---------------- INVENTÁRIO (onde ficam os produtos) ---------------- */
+            composable("inventory") {
+                InventoryScreen(nav = innerNavController)
+            }
+
+            // Adicionar Produto (chamado a partir do Inventário)
+            composable("addProduct") {
+                AddProductScreen(nav = innerNavController)
             }
 
             /* ---------------- PERFIL ---------------- */
@@ -114,7 +122,6 @@ fun MainScaffold(
             }
 
             /* ---------------- EM DESENVOLVIMENTO ---------------- */
-            composable("inventory") { PlaceholderScreen("Inventário") }
             composable("donations") { PlaceholderScreen("Doações") }
             composable("schedule") { PlaceholderScreen("Agendamentos") }
             composable("reports") { PlaceholderScreen("Relatórios") }
