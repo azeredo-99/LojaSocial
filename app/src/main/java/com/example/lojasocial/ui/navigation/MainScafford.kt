@@ -1,11 +1,13 @@
 package com.example.lojasocial.ui.navigation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -13,6 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lojasocial.ui.beneficiaries.*
+import com.example.lojasocial.ui.deliveries.AddDeliveryScreen
+import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
@@ -25,9 +29,7 @@ fun MainScaffold(
     val innerNavController = rememberNavController()
 
     Scaffold(
-        bottomBar = {
-            BottomBar(innerNavController)
-        }
+        bottomBar = { BottomBar(innerNavController) }
     ) { padding ->
 
         NavHost(
@@ -68,10 +70,7 @@ fun MainScaffold(
                 val id = backStack.arguments?.getString("id") ?: return@composable
                 val vm = hiltViewModel<BeneficiariesViewModel>()
 
-                // Os dados são carregados
-                LaunchedEffect(Unit) {
-                    vm.load()
-                }
+                LaunchedEffect(Unit) { vm.load() }
 
                 val beneficiary = vm.beneficiaries.firstOrNull { it.id == id }
 
@@ -82,16 +81,27 @@ fun MainScaffold(
                         beneficiary = beneficiary
                     )
                 } else {
-
-                    androidx.compose.foundation.layout.Box(
+                    Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = androidx.compose.ui.Alignment.Center
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 }
             }
 
+            /* ---------------- ENTREGAS (HISTÓRICO GLOBAL) ---------------- */
+            composable("deliveries") {
+                DeliveriesHistoryScreen(
+                    nav = innerNavController
+                )
+            }
+
+            composable("addDelivery") {
+                AddDeliveryScreen(
+                    nav = innerNavController
+                )
+            }
 
             /* ---------------- PERFIL ---------------- */
             composable("profile") {
@@ -106,7 +116,6 @@ fun MainScaffold(
             /* ---------------- EM DESENVOLVIMENTO ---------------- */
             composable("inventory") { PlaceholderScreen("Inventário") }
             composable("donations") { PlaceholderScreen("Doações") }
-            composable("deliveries") { PlaceholderScreen("Entregas") }
             composable("schedule") { PlaceholderScreen("Agendamentos") }
             composable("reports") { PlaceholderScreen("Relatórios") }
             composable("alerts") { PlaceholderScreen("Alertas") }
