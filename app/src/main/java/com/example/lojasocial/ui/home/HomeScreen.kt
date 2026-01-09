@@ -21,7 +21,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Loja Social",
+                        text = "",
                         style = MaterialTheme.typography.titleLarge
                     )
                 },

@@ -8,33 +8,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
-    primary = IpcaBlue,
-    secondary = IpcaBlueLight,
+    primary = IpcaGreen,
+    onPrimary = Color.White,
+
+    primaryContainer = IpcaGreenDark,
+    onPrimaryContainer = Color.White,
+
+    secondary = IpcaGold,
+    onSecondary = Color.White,
+
+    secondaryContainer = IpcaGoldDark,
+    onSecondaryContainer = Color.White,
+
     background = IpcaBackgroundLight,
+    onBackground = Color(0xFF1B1B1B),
+
     surface = IpcaSurfaceLight,
+    onSurface = Color(0xFF1B1B1B),
+
     error = IpcaError,
-    onPrimary = IpcaSurfaceLight,
-    onSecondary = IpcaSurfaceLight,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
+    onError = Color.White,
+
+    outline = Color(0xFFCED4DA)
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = IpcaBlueLight,
-    secondary = IpcaBlue,
-    background = IpcaBackgroundDark,
-    surface = IpcaSurfaceDark,
-    error = IpcaError,
-    onPrimary = Color.Black,
+    primary = IpcaGreen,
+    onPrimary = Color.White,
+
+    primaryContainer = IpcaGreenDark,
+    onPrimaryContainer = Color.White,
+
+    secondary = IpcaGold,
     onSecondary = Color.White,
+
+    secondaryContainer = IpcaGoldDark,
+    onSecondaryContainer = Color.White,
+
+    background = IpcaBackgroundDark,
     onBackground = Color.White,
+
+    surface = IpcaSurfaceDark,
     onSurface = Color.White,
+
+    error = IpcaError,
+    onError = Color.White,
+
+    outline = Color(0xFF2A3A31)
 )
 
 @Composable
 fun LojaSocialTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = false, // recomendo false para manter branding IPCA
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

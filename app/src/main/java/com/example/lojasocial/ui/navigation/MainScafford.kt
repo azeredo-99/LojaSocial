@@ -7,12 +7,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.lojasocial.ui.beneficiaries.*
 import com.example.lojasocial.ui.deliveries.AddDeliveryScreen
@@ -24,6 +26,7 @@ import com.example.lojasocial.ui.inventory.EditProductScreen
 import com.example.lojasocial.ui.inventory.InventoryScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
 import com.example.lojasocial.ui.products.AddProductScreen
+import com.example.lojasocial.ui.components.IpcaTopBar   // ✅ adiciona isto
 
 @Composable
 fun MainScaffold(
@@ -31,7 +34,37 @@ fun MainScaffold(
 ) {
     val innerNavController = rememberNavController()
 
+    // ✅ saber em que rota estás
+    val backStackEntry by innerNavController.currentBackStackEntryAsState()
+    val route = backStackEntry?.destination?.route.orEmpty()
+
+    // ✅ título por rota (podes ajustar os nomes)
+    val title = when {
+        route == "home" -> "Loja Social"
+        route == "beneficiaries" -> "Beneficiários"
+        route.startsWith("beneficiaryDetail") -> "Beneficiário"
+        route.startsWith("editBeneficiary") -> "Editar Beneficiário"
+        route == "deliveries" -> "Entregas"
+        route == "inventory" -> "Inventário"
+        route.startsWith("editProduct") -> "Editar Produto"
+        route == "profile" -> "Perfil"
+        route == "help" -> "Ajuda"
+        route == "donations" -> "Doações"
+        route == "schedule" -> "Agendamentos"
+        route == "reports" -> "Relatórios"
+        route == "alerts" -> "Alertas"
+        else -> "Loja Social"
+    }
+
+    // ✅ rotas onde NÃO queres topBar global (porque esses screens já têm topbar com back)
+    val hideTopBar = route == "addBeneficiary" || route == "addDelivery" || route == "addProduct"
+
     Scaffold(
+        topBar = {
+            if (!hideTopBar) {
+                IpcaTopBar(title = title)
+            }
+        },
         bottomBar = { BottomBar(innerNavController) }
     ) { padding ->
 
@@ -110,7 +143,6 @@ fun MainScaffold(
             composable("addProduct") {
                 AddProductScreen(nav = innerNavController)
             }
-
 
             composable("editProduct/{id}") { backStack ->
                 val id = backStack.arguments?.getString("id") ?: return@composable
