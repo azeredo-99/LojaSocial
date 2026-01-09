@@ -20,9 +20,10 @@ import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
+import com.example.lojasocial.ui.inventory.EditProductScreen
 import com.example.lojasocial.ui.inventory.InventoryScreen
-import com.example.lojasocial.ui.products.AddProductScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
+import com.example.lojasocial.ui.products.AddProductScreen
 
 @Composable
 fun MainScaffold(
@@ -92,7 +93,7 @@ fun MainScaffold(
                 }
             }
 
-            /* ---------------- ENTREGAS (HISTÓRICO GLOBAL) ---------------- */
+            /* ---------------- ENTREGAS ---------------- */
             composable("deliveries") {
                 DeliveriesHistoryScreen(nav = innerNavController)
             }
@@ -101,14 +102,23 @@ fun MainScaffold(
                 AddDeliveryScreen(nav = innerNavController)
             }
 
-            /* ---------------- INVENTÁRIO (onde ficam os produtos) ---------------- */
+            /* ---------------- INVENTÁRIO ---------------- */
             composable("inventory") {
                 InventoryScreen(nav = innerNavController)
             }
 
-            // Adicionar Produto (chamado a partir do Inventário)
             composable("addProduct") {
                 AddProductScreen(nav = innerNavController)
+            }
+
+
+            composable("editProduct/{id}") { backStack ->
+                val id = backStack.arguments?.getString("id") ?: return@composable
+
+                EditProductScreen(
+                    nav = innerNavController,
+                    productId = id
+                )
             }
 
             /* ---------------- PERFIL ---------------- */
@@ -121,7 +131,7 @@ fun MainScaffold(
                 HelpScreen()
             }
 
-            /* ---------------- EM DESENVOLVIMENTO ---------------- */
+            /* ---------------- PLACEHOLDERS ---------------- */
             composable("donations") { PlaceholderScreen("Doações") }
             composable("schedule") { PlaceholderScreen("Agendamentos") }
             composable("reports") { PlaceholderScreen("Relatórios") }

@@ -12,26 +12,31 @@ object ProductRepository {
 
     private const val COLLECTION = "products"
 
-    /* ---------- GET ALL ---------- */
     suspend fun getAll(): List<Product> {
         return db.collection(COLLECTION)
             .get()
             .await()
             .documents
             .mapNotNull { doc ->
-                doc.toObject(Product::class.java)
-                    ?.copy(id = doc.id)
+                doc.toObject(Product::class.java)?.copy(id = doc.id)
             }
     }
 
-    /* ---------- ADD ---------- */
+    suspend fun getById(id: String): Product? {
+        val doc = db.collection(COLLECTION)
+            .document(id)
+            .get()
+            .await()
+
+        return doc.toObject(Product::class.java)?.copy(id = doc.id)
+    }
+
     suspend fun add(product: Product) {
         db.collection(COLLECTION)
             .add(product.copy(id = ""))
             .await()
     }
 
-    /* ---------- UPDATE ---------- */
     suspend fun update(product: Product) {
         if (product.id.isBlank()) return
 
@@ -41,7 +46,6 @@ object ProductRepository {
             .await()
     }
 
-    /* ---------- REMOVE ---------- */
     suspend fun remove(id: String) {
         db.collection(COLLECTION)
             .document(id)
