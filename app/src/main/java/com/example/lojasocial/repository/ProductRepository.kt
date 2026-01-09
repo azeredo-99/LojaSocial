@@ -24,6 +24,21 @@ object ProductRepository {
             }
     }
 
+    /* ---------- GET BY CATEGORY ---------- */
+    suspend fun getByCategory(category: String): List<Product> {
+        return getAll().filter { it.category.equals(category, ignoreCase = true) }
+    }
+
+    /* ---------- GET EXPIRED PRODUCTS ---------- */
+    suspend fun getExpired(): List<Product> {
+        return getAll().filter { it.isExpired() }
+    }
+
+    /* ---------- GET EXPIRING SOON ---------- */
+    suspend fun getExpiringSoon(daysThreshold: Int = 7): List<Product> {
+        return getAll().filter { it.isExpiringSoon(daysThreshold) }
+    }
+
     /* ---------- ADD ---------- */
     suspend fun add(product: Product) {
         db.collection(COLLECTION)
@@ -47,5 +62,13 @@ object ProductRepository {
             .document(id)
             .delete()
             .await()
+    }
+
+    /* ---------- REMOVE EXPIRED ---------- */
+    suspend fun removeExpired() {
+        val expiredProducts = getExpired()
+        expiredProducts.forEach { product ->
+            remove(product.id)
+        }
     }
 }
