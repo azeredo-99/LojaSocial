@@ -35,10 +35,7 @@ fun AddProductScreen(
         "Alimentação",
         "Bebidas",
         "Higiene",
-        "Limpeza",
-        "Vestuário",
-        "Medicamentos",
-        "Outro"
+        "Limpeza"
     )
 
     val units = listOf(

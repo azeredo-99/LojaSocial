@@ -194,7 +194,7 @@ fun InventoryProductCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Cabeçalho com nome e botão de deletar
+            // Cabeçalho com nome e botão de apagar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -237,7 +237,7 @@ fun InventoryProductCard(
 
                         val (label, value, color) = when {
                             product.isExpired() -> Triple(
-                                "Vencido em",
+                                "Expirou em",
                                 dateStr,
                                 MaterialTheme.colorScheme.error
                             )
@@ -286,7 +286,7 @@ fun InventoryProductCard(
 
             HorizontalDivider()
 
-            // Controle de stock
+            // Controlo de stock
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
