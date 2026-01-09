@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.lojasocial.models.Delivery
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,34 +71,56 @@ fun DeliveriesHistoryScreen(
                     modifier = Modifier
                         .padding(padding)
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(vm.deliveries) { delivery ->
-                        Card {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    delivery.beneficiaryName,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text("Nº: ${delivery.studentNumber}")
-                                Text("Curso: ${delivery.course}")
-                                Divider()
-                                Text("Quantidade: ${delivery.quantity}")
-                                Text("Data: ${delivery.date}")
-
-                                if (delivery.notes.isNotBlank()) {
-                                    Text(
-                                        delivery.notes,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
+                        DeliveryHistoryItem(delivery)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeliveryHistoryItem(delivery: Delivery) {
+    val totalUnits = delivery.items.sumOf { it.quantity }
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = delivery.beneficiaryName,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text("Nº estudante: ${delivery.studentNumber}")
+            Text("Curso: ${delivery.course}")
+
+            Divider()
+
+            Text("Produtos: ${delivery.items.size}")
+            Text("Total de unidades: $totalUnits")
+            Text("Data: ${delivery.date}")
+
+            Text(
+                text = if (delivery.state) "Estado: Entregue" else "Estado: Não entregue",
+                color = if (delivery.state)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.error
+            )
+
+            if (delivery.notes.isNotBlank()) {
+                Divider()
+                Text(
+                    delivery.notes,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
