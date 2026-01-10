@@ -15,73 +15,68 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
     var products by mutableStateOf<List<Product>>(emptyList())
         private set
 
-    var selectedProduct by mutableStateOf<Product?>(null)
+    var expiredProducts by mutableStateOf<List<Product>>(emptyList())
+        private set
+
+    var expiringSoonProducts by mutableStateOf<List<Product>>(emptyList())
         private set
 
     var isLoading by mutableStateOf(false)
         private set
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
-
     fun load() {
         viewModelScope.launch {
             isLoading = true
-            errorMessage = null
-            try {
-                products = ProductRepository.getAll()
-            } catch (e: Exception) {
-                errorMessage = e.message ?: "Erro ao carregar produtos"
-            } finally {
-                isLoading = false
-            }
+            products = ProductRepository.getAll()
+            expiredProducts = ProductRepository.getExpired()
+            expiringSoonProducts = ProductRepository.getExpiringSoon()
+            isLoading = false
         }
     }
 
-    fun loadById(id: String) {
+    fun loadByCategory(category: String) {
         viewModelScope.launch {
             isLoading = true
-            errorMessage = null
-            selectedProduct = null
-            try {
-                selectedProduct = ProductRepository.getById(id)
-            } catch (e: Exception) {
-                errorMessage = e.message ?: "Erro ao carregar produto"
-            } finally {
-                isLoading = false
-            }
+            products = ProductRepository.getByCategory(category)
+            isLoading = false
         }
     }
 
-    fun update(product: Product, onDone: () -> Unit = {}) {
+    fun addProduct(product: Product) {
         viewModelScope.launch {
-            isLoading = true
-            errorMessage = null
-            try {
-                ProductRepository.update(product)
-                load()
-                onDone()
-            } catch (e: Exception) {
-                errorMessage = e.message ?: "Erro ao atualizar produto"
-            } finally {
-                isLoading = false
-            }
+            ProductRepository.add(product)
+            load()
         }
     }
 
-    fun remove(id: String, onDone: () -> Unit = {}) {
+    fun updateProduct(product: Product) {
         viewModelScope.launch {
-            isLoading = true
-            errorMessage = null
-            try {
-                ProductRepository.remove(id)
-                load()
-                onDone()
-            } catch (e: Exception) {
-                errorMessage = e.message ?: "Erro ao remover produto"
-            } finally {
-                isLoading = false
-            }
+            ProductRepository.update(product)
+            load()
         }
     }
+
+    fun removeProduct(id: String) {
+        viewModelScope.launch {
+            ProductRepository.remove(id)
+            load()
+        }
+    }
+
+    fun removeExpiredProducts() {
+        viewModelScope.launch {
+            ProductRepository.removeExpired()
+            load()
+        }
+    }
+
+    // Retorna o número de produtos vencidos
+    fun getExpiredCount(): Int = expiredProducts.size
+
+    // Retorna o número de produtos próximos do vencimento
+    fun getExpiringSoonCount(): Int = expiringSoonProducts.size
+
+    // Verifica se há alertas de validade
+    fun hasExpiryAlerts(): Boolean =
+        expiredProducts.isNotEmpty() || expiringSoonProducts.isNotEmpty()
 }

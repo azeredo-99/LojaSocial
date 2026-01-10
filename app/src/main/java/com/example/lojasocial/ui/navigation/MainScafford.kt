@@ -17,10 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lojasocial.ui.beneficiaries.*
 import com.example.lojasocial.ui.deliveries.AddDeliveryScreen
 import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
+import com.example.lojasocial.ui.deliveries.EditDeliveryScreen
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
-import com.example.lojasocial.ui.inventory.EditProductScreen
 import com.example.lojasocial.ui.inventory.InventoryScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
 import com.example.lojasocial.ui.products.AddProductScreen
@@ -102,6 +102,14 @@ fun MainScaffold(
                 AddDeliveryScreen(nav = innerNavController)
             }
 
+            composable("editDelivery/{deliveryId}") { backStack ->
+                val deliveryId = backStack.arguments?.getString("deliveryId") ?: return@composable
+                EditDeliveryScreen(
+                    deliveryId = deliveryId,
+                    nav = innerNavController
+                )
+            }
+
             /* ---------------- INVENTÁRIO ---------------- */
             composable("inventory") {
                 InventoryScreen(nav = innerNavController)
@@ -115,10 +123,12 @@ fun MainScaffold(
             composable("editProduct/{id}") { backStack ->
                 val id = backStack.arguments?.getString("id") ?: return@composable
 
+                /** Doesnt exist anymore
                 EditProductScreen(
-                    nav = innerNavController,
-                    productId = id
+                nav = innerNavController,
+                productId = id
                 )
+                 **/
             }
 
             /* ---------------- PERFIL ---------------- */
