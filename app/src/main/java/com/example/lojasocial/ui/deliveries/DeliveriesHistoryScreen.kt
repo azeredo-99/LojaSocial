@@ -61,7 +61,7 @@ fun DeliveriesHistoryScreen(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Ainda não existem entregas registadas")
+                    Text("Não existem entregas registadas")
                 }
             }
 
