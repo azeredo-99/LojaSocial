@@ -4,6 +4,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun BottomBar(navController: NavController) {
@@ -29,7 +30,10 @@ fun BottomBar(navController: NavController) {
                     }
                 },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label) }
+                label = { Text(item.label) },
+                colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color(0xFF08502C),  // Your IpcaGreenDark
+                )
             )
         }
     }
