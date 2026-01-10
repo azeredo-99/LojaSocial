@@ -24,6 +24,7 @@ import com.example.lojasocial.ui.inventory.EditProductScreen
 import com.example.lojasocial.ui.inventory.InventoryScreen
 import com.example.lojasocial.ui.profile.ProfileScreen
 import com.example.lojasocial.ui.products.AddProductScreen
+import com.example.lojasocial.ui.schedule.*
 
 @Composable
 fun MainScaffold(
@@ -111,7 +112,6 @@ fun MainScaffold(
                 AddProductScreen(nav = innerNavController)
             }
 
-
             composable("editProduct/{id}") { backStack ->
                 val id = backStack.arguments?.getString("id") ?: return@composable
 
@@ -119,6 +119,44 @@ fun MainScaffold(
                     nav = innerNavController,
                     productId = id
                 )
+            }
+
+            /* ---------------- AGENDAMENTOS ---------------- */
+            composable("schedule") {
+                ScheduleScreen(nav = innerNavController)
+            }
+
+            composable("addSchedule") {
+                AddScheduleScreen(
+                    nav = innerNavController,
+                    vm = hiltViewModel()
+                )
+            }
+
+            composable("editSchedule/{id}") { backStack ->
+                val id = backStack.arguments?.getString("id") ?: return@composable
+                val vm = hiltViewModel<ScheduleViewModel>()
+
+                LaunchedEffect(Unit) {
+                    vm.load()
+                }
+
+                val schedule = vm.schedules.firstOrNull { it.id == id }
+
+                if (schedule != null) {
+                    EditScheduleScreen(
+                        nav = innerNavController,
+                        schedule = schedule,
+                        vm = vm
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
 
             /* ---------------- PERFIL ---------------- */
@@ -133,7 +171,6 @@ fun MainScaffold(
 
             /* ---------------- PLACEHOLDERS ---------------- */
             composable("donations") { PlaceholderScreen("Doações") }
-            composable("schedule") { PlaceholderScreen("Agendamentos") }
             composable("reports") { PlaceholderScreen("Relatórios") }
             composable("alerts") { PlaceholderScreen("Alertas") }
         }
