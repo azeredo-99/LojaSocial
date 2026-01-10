@@ -411,7 +411,13 @@ fun SelectProductDialog(
                             selectedProduct = null
                             quantityToDeliver = ""
                         },
-                        label = { Text("Todos") }
+                        label = { Text("Todos") },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     // Category filter chips
@@ -423,7 +429,13 @@ fun SelectProductDialog(
                                 selectedProduct = null
                                 quantityToDeliver = ""
                             },
-                            label = { Text(category) }
+                            label = { Text(category) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         )
                     }
                 }
