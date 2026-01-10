@@ -34,6 +34,18 @@ fun DeliveriesHistoryScreen(
         vm.load()
     }
 
+    // Sort deliveries by date (closest date first)
+    val sortedDeliveries = remember(vm.deliveries) {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        vm.deliveries.sortedBy { delivery ->
+            try {
+                dateFormat.parse(delivery.date)?.time ?: Long.MAX_VALUE
+            } catch (e: Exception) {
+                Long.MAX_VALUE
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -82,7 +94,7 @@ fun DeliveriesHistoryScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(vm.deliveries) { delivery ->
+                    items(sortedDeliveries) { delivery ->
                         DeliveryHistoryItem(
                             delivery = delivery,
                             onToggleState = { vm.toggleDeliveryState(delivery) },
