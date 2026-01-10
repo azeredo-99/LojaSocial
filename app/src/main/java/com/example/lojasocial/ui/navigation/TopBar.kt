@@ -17,30 +17,20 @@ fun TopBar() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            //.padding(vertical = 16.dp)
-            .height(96.dp),
+            .height(86.dp),
         color = MaterialTheme.colorScheme.primary
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /**
-            Text(
-                modifier = Modifier.padding(top = 16.dp),
-                text = "Loja Social",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 28.sp
-            )
-            **/
             Image(
                 modifier = Modifier
-                    //.padding(top = 20.dp)
-                    .height(50.dp),
+                    .padding(top = 15.dp)
+                    .height(60.dp),
                 painter = painterResource(id = R.drawable.loja_social_branco),
                 contentDescription = "Loja Social Logo",
                 alignment = Alignment.Center

@@ -302,6 +302,23 @@ fun InventoryProductCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Botão diminuir
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.1f),  // Background with 10% opacity
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        IconButton(
+                            onClick = onDecrement,
+                            enabled = product.quantity > 0
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Remove,
+                                contentDescription = "Diminuir quantidade",
+                                tint = Color.Black.copy(alpha = 0.8f)  // Icon with 80% opacity
+                            )
+                        }
+                    }
+                    /**
                     FilledTonalIconButton(
                         onClick = onDecrement,
                         enabled = product.quantity > 0
@@ -310,28 +327,44 @@ fun InventoryProductCard(
                             imageVector = Icons.Default.Remove,
                             contentDescription = "Diminuir quantidade"
                         )
-                    }
+                    }**/
 
                     // Quantidade
                     Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = Color.Black.copy(alpha = 0.12f),
+                        //color = MaterialTheme.colorScheme.primaryContainer,
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Text(
                             text = "${product.quantity}",
                             style = MaterialTheme.typography.headlineSmall,
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            //color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = Color.Black
                         )
                     }
 
                     // Botão aumentar
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.1f),
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        IconButton(onClick = onIncrement) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Aumentar quantidade",
+                                tint = Color.Black.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                    /**
                     FilledTonalIconButton(onClick = onIncrement) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Aumentar quantidade"
+                            contentDescription = "Aumentar quantidade",
                         )
-                    }
+                    }**/
                 }
             }
 

@@ -6,8 +6,8 @@ import androidx.compose.ui.graphics.Color
 val IpcaGreen = Color(0xFF0B6B3A)
 val IpcaGreenDark = Color(0xFF08502C)
 
-val IpcaGold = Color(0xFF8B7A4B)
-val IpcaGoldDark = Color(0xFF6F613B)
+val IpcaGold = Color(0xFFffe6ed)
+val IpcaGoldDark = Color(0xFFffe6ed)
 
 // Surfaces/background
 val IpcaBackgroundLight = Color(0xFFF5F6F7)

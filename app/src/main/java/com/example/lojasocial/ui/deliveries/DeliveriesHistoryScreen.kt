@@ -142,11 +142,19 @@ private fun DeliveryHistoryItem(
 
     val showWarning = !delivery.state && daysUntilDelivery != null && daysUntilDelivery in 0..2
 
-    // Green color for delivered items
+    // Color schemes for delivered (green) and undelivered (neutral blue-gray)
     val deliveredContainerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)
     val deliveredContentColor = Color(0xFF1B5E20)
     val deliveredBadgeColor = Color(0xFF4CAF50)
     val deliveredBadgeContentColor = Color.White
+
+    val undeliveredContainerColor = Color(0xFF607D8B).copy(alpha = 0.2f)
+    val undeliveredContentColor = Color(0xFF37474F)
+    val undeliveredBadgeColor = Color(0xFF607D8B)
+    val undeliveredBadgeContentColor = Color.White
+
+    val deliveredButtonColor = Color(0xFF0D3D14)  // Darker green
+    val undeliveredButtonColor = Color(0xFF1C2529)  // Darker blue-gray
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -154,7 +162,7 @@ private fun DeliveryHistoryItem(
             containerColor = if (delivery.state)
                 deliveredContainerColor
             else
-                MaterialTheme.colorScheme.secondaryContainer
+                undeliveredContainerColor
         )
     ) {
         Column(
@@ -166,7 +174,7 @@ private fun DeliveryHistoryItem(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.tertiaryContainer
+                    color = Color(0xFFFFA726).copy(alpha = 0.25f)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -176,7 +184,7 @@ private fun DeliveryHistoryItem(
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            tint = Color(0xFFF57C00),
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
@@ -186,7 +194,7 @@ private fun DeliveryHistoryItem(
                                 else -> "Faltam $daysUntilDelivery dias"
                             },
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                            color = Color(0xFFF57C00)
                         )
                     }
                 }
@@ -204,7 +212,7 @@ private fun DeliveryHistoryItem(
                     color = if (delivery.state)
                         deliveredContentColor
                     else
-                        MaterialTheme.colorScheme.onSecondaryContainer,
+                        undeliveredContentColor,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -223,7 +231,7 @@ private fun DeliveryHistoryItem(
                             tint = if (delivery.state)
                                 deliveredContentColor.copy(alpha = 0.7f)
                             else
-                                MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                                undeliveredContentColor.copy(alpha = 0.7f),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -234,7 +242,7 @@ private fun DeliveryHistoryItem(
                         color = if (delivery.state)
                             deliveredBadgeColor
                         else
-                            MaterialTheme.colorScheme.secondary
+                            undeliveredBadgeColor
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -248,15 +256,15 @@ private fun DeliveryHistoryItem(
                                 tint = if (delivery.state)
                                     deliveredBadgeContentColor
                                 else
-                                    MaterialTheme.colorScheme.onSecondary
+                                    undeliveredBadgeContentColor
                             )
                             Text(
-                                text = if (delivery.state) "ENTREGUE" else "RESERVADO",
+                                text = if (delivery.state) "ENTREGUE" else "POR ENTREGAR",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (delivery.state)
                                     deliveredBadgeContentColor
                                 else
-                                    MaterialTheme.colorScheme.onSecondary
+                                    undeliveredBadgeContentColor
                             )
                         }
                     }
@@ -268,21 +276,21 @@ private fun DeliveryHistoryItem(
                 color = if (delivery.state)
                     deliveredContentColor
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    undeliveredContentColor
             )
             Text(
                 "Curso: ${delivery.course}",
                 color = if (delivery.state)
                     deliveredContentColor
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    undeliveredContentColor
             )
 
             HorizontalDivider(
                 color = if (delivery.state)
                     deliveredContentColor.copy(alpha = 0.2f)
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                    undeliveredContentColor.copy(alpha = 0.2f)
             )
 
             Text(
@@ -290,14 +298,14 @@ private fun DeliveryHistoryItem(
                 color = if (delivery.state)
                     deliveredContentColor
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    undeliveredContentColor
             )
             Text(
                 "Data: ${delivery.date}",
                 color = if (delivery.state)
                     deliveredContentColor
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer
+                    undeliveredContentColor
             )
 
             if (delivery.notes.isNotBlank()) {
@@ -305,7 +313,7 @@ private fun DeliveryHistoryItem(
                     color = if (delivery.state)
                         deliveredContentColor.copy(alpha = 0.2f)
                     else
-                        MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                        undeliveredContentColor.copy(alpha = 0.2f)
                 )
                 Text(
                     delivery.notes,
@@ -313,7 +321,7 @@ private fun DeliveryHistoryItem(
                     color = if (delivery.state)
                         deliveredContentColor
                     else
-                        MaterialTheme.colorScheme.onSecondaryContainer
+                        undeliveredContentColor
                 )
             }
 
@@ -321,7 +329,7 @@ private fun DeliveryHistoryItem(
                 color = if (delivery.state)
                     deliveredContentColor.copy(alpha = 0.2f)
                 else
-                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                    undeliveredContentColor.copy(alpha = 0.2f)
             )
 
             // Action buttons
@@ -334,10 +342,14 @@ private fun DeliveryHistoryItem(
                     onClick = onToggleState,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (delivery.state)
-                            deliveredContentColor
+                        containerColor = if (delivery.state)
+                            deliveredContentColor.copy(alpha = 0.10f)  // Background color
                         else
-                            MaterialTheme.colorScheme.onSecondaryContainer
+                            undeliveredContentColor.copy(alpha = 0.10f),  // Background color
+                        contentColor = if (delivery.state)
+                            deliveredButtonColor
+                        else
+                            undeliveredButtonColor
                     )
                 ) {
                     Icon(
@@ -357,10 +369,14 @@ private fun DeliveryHistoryItem(
                     onClick = onEdit,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (delivery.state)
-                            deliveredContentColor
+                        containerColor = if (delivery.state)
+                            deliveredContentColor.copy(alpha = 0.10f)  // Background color
                         else
-                            MaterialTheme.colorScheme.onSecondaryContainer
+                            undeliveredContentColor.copy(alpha = 0.10f),  // Background color
+                        contentColor = if (delivery.state)
+                            deliveredButtonColor
+                        else
+                            undeliveredButtonColor
                     )
                 ) {
                     Icon(
