@@ -3,8 +3,7 @@ package com.example.lojasocial.ui.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -15,22 +14,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lojasocial.ui.beneficiaries.*
-import com.example.lojasocial.ui.deliveries.AddDeliveryScreen
-import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
-import com.example.lojasocial.ui.deliveries.EditDeliveryScreen
-import com.example.lojasocial.ui.donations.AddDonationScreen
-import com.example.lojasocial.ui.donations.DonationsScreen
+import com.example.lojasocial.ui.deliveries.*
+import com.example.lojasocial.ui.donations.*
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
-import com.example.lojasocial.ui.home.PlaceholderScreen
 import com.example.lojasocial.ui.inventory.InventoryScreen
-import com.example.lojasocial.ui.profile.ProfileScreen
 import com.example.lojasocial.ui.products.AddProductScreen
-import com.example.lojasocial.ui.schedule.AddScheduleScreen
-import com.example.lojasocial.ui.schedule.EditScheduleScreen
-import com.example.lojasocial.ui.schedule.ScheduleScreen
-import com.example.lojasocial.ui.schedule.ScheduleViewModel
-
+import com.example.lojasocial.ui.profile.ProfileScreen
+import com.example.lojasocial.ui.reports.*
+import com.example.lojasocial.ui.reports.BeneficiariesReportScreen
 
 @Composable
 fun MainScaffold(
@@ -111,7 +103,9 @@ fun MainScaffold(
             }
 
             composable("editDelivery/{deliveryId}") { backStack ->
-                val deliveryId = backStack.arguments?.getString("deliveryId") ?: return@composable
+                val deliveryId =
+                    backStack.arguments?.getString("deliveryId") ?: return@composable
+
                 EditDeliveryScreen(
                     deliveryId = deliveryId,
                     nav = innerNavController
@@ -127,32 +121,7 @@ fun MainScaffold(
                 AddProductScreen(nav = innerNavController)
             }
 
-
-            composable("editProduct/{id}") { backStack ->
-                val id = backStack.arguments?.getString("id") ?: return@composable
-
-                /** Doesnt exist anymore
-                EditProductScreen(
-                nav = innerNavController,
-                productId = id
-                )
-                 **/
-            }
-
-            /* ---------------- AGENDAMENTOS ---------------- */
-            composable("schedule") {
-                ScheduleScreen(nav = innerNavController)
-            }
-
-            composable("addSchedule") {
-                AddScheduleScreen(
-                    nav = innerNavController,
-                    vm = hiltViewModel()
-                )
-            }
-
-            /*--------------DOAÇÕES----------------------*/
-
+            /* ---------------- DOAÇÕES ---------------- */
             composable("donations") {
                 DonationsScreen(nav = innerNavController)
             }
@@ -161,31 +130,26 @@ fun MainScaffold(
                 AddDonationScreen(nav = innerNavController)
             }
 
+            /* ---------------- RELATÓRIOS ---------------- */
+            composable("reports") {
+                ReportsScreen(nav = innerNavController)
+            }
 
-            composable("editSchedule/{id}") { backStack ->
-                val id = backStack.arguments?.getString("id") ?: return@composable
-                val vm = hiltViewModel<ScheduleViewModel>()
+            composable("inventoryReport") {
+                InventoryReportScreen(nav = innerNavController)
+            }
 
-                LaunchedEffect(Unit) {
-                    vm.load()
-                }
 
-                val schedule = vm.schedules.firstOrNull { it.id == id }
+            composable("deliveriesReport") {
+                DeliveriesReportScreen(nav = innerNavController)
+            }
 
-                if (schedule != null) {
-                    EditScheduleScreen(
-                        nav = innerNavController,
-                        schedule = schedule,
-                        vm = vm
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+            composable("donationsReport") {
+                DonationsReportScreen(nav = innerNavController)
+            }
+
+            composable("beneficiariesReport") {
+                BeneficiariesReportScreen(nav = innerNavController)
             }
 
 
@@ -199,11 +163,15 @@ fun MainScaffold(
                 HelpScreen()
             }
 
-            /* ---------------- PLACEHOLDERS ---------------- */
-            //composable("donations") { PlaceholderScreen("Doações") }
-            //composable("schedule") { PlaceholderScreen("Agendamentos") }
-            composable("reports") { PlaceholderScreen("Relatórios") }
-            composable("alerts") { PlaceholderScreen("Alertas") }
+            /* ---------------- ALERTAS ---------------- */
+            composable("alerts") {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Alertas em desenvolvimento")
+                }
+            }
         }
     }
 }
