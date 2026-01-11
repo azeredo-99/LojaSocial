@@ -18,6 +18,8 @@ import com.example.lojasocial.ui.beneficiaries.*
 import com.example.lojasocial.ui.deliveries.AddDeliveryScreen
 import com.example.lojasocial.ui.deliveries.DeliveriesHistoryScreen
 import com.example.lojasocial.ui.deliveries.EditDeliveryScreen
+import com.example.lojasocial.ui.donations.AddDonationScreen
+import com.example.lojasocial.ui.donations.DonationsScreen
 import com.example.lojasocial.ui.help.HelpScreen
 import com.example.lojasocial.ui.home.HomeScreen
 import com.example.lojasocial.ui.home.PlaceholderScreen
@@ -149,6 +151,17 @@ fun MainScaffold(
                 )
             }
 
+            /*--------------DOAÇÕES----------------------*/
+
+            composable("donations") {
+                DonationsScreen(nav = innerNavController)
+            }
+
+            composable("addDonation") {
+                AddDonationScreen(nav = innerNavController)
+            }
+
+
             composable("editSchedule/{id}") { backStack ->
                 val id = backStack.arguments?.getString("id") ?: return@composable
                 val vm = hiltViewModel<ScheduleViewModel>()
@@ -187,7 +200,7 @@ fun MainScaffold(
             }
 
             /* ---------------- PLACEHOLDERS ---------------- */
-            composable("donations") { PlaceholderScreen("Doações") }
+            //composable("donations") { PlaceholderScreen("Doações") }
             //composable("schedule") { PlaceholderScreen("Agendamentos") }
             composable("reports") { PlaceholderScreen("Relatórios") }
             composable("alerts") { PlaceholderScreen("Alertas") }

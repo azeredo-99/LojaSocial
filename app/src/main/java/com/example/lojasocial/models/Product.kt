@@ -8,12 +8,12 @@ data class Product(
     val category: String = "",
     val expireDate: Long? = null
 ) {
-    // Verifica se o produto está dentro da validade
+
     fun isExpired(): Boolean {
         return expireDate?.let { it < System.currentTimeMillis() } ?: false
     }
 
-    // Verifica se o produto está próximo de expirar (ex: 7 dias)
+
     fun isExpiringSoon(daysThreshold: Int = 7): Boolean {
         return expireDate?.let {
             val daysUntilExpiry = (it - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)
@@ -21,7 +21,7 @@ data class Product(
         } ?: false
     }
 
-    // Retorna dias restantes até expirar (negativo se já expirou)
+
     fun daysUntilExpiry(): Long? {
         return expireDate?.let {
             (it - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)
