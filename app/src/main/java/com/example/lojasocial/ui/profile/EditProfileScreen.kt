@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,10 +27,7 @@ fun EditProfileScreen(
                 title = { Text("Editar Perfil") },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
                     }
                 }
             )
@@ -40,13 +38,21 @@ fun EditProfileScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+
+            Text(
+                text = "Dados pessoais",
+                style = MaterialTheme.typography.titleMedium
+            )
 
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Nome") },
+                leadingIcon = {
+                    Icon(Icons.Default.Edit, null)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -58,7 +64,14 @@ fun EditProfileScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Guardar")
+                Text("Guardar alterações")
+            }
+
+            vm.message?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

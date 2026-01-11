@@ -17,6 +17,7 @@ fun HomeScreen(
     nav: NavController
 ) {
     Scaffold(
+        /**
         topBar = {
             TopAppBar(
                 title = {
@@ -38,7 +39,7 @@ fun HomeScreen(
                     }
                 }
             )
-        }
+        } **/
     ) { padding ->
 
         LazyVerticalGrid(

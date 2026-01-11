@@ -20,15 +20,11 @@ fun ProfileScreen(
     rootNavController: NavController,
     vm: ProfileViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        vm.loadProfile()
-    }
+    LaunchedEffect(Unit) { vm.loadProfile() }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Minha Conta") }
-            )
+            TopAppBar(title = { Text("Minha Conta") })
         }
     ) { padding ->
 
@@ -39,15 +35,15 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            /* ---------- PERFIL ---------- */
+            /* ---------- HEADER PERFIL ---------- */
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
                         text = vm.name,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge
                     )
 
                     Text(
@@ -55,58 +51,70 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
 
-                    Text(
-                        text = "Funcionário",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
+                    AssistChip(
+                        onClick = {},
+                        label = { Text("Funcionário") }
                     )
                 }
             }
 
-            Divider()
-
             /* ---------- CONTA ---------- */
             Text("Conta", style = MaterialTheme.typography.titleSmall)
 
-            ListItem(
-                headlineContent = { Text("Editar perfil") },
-                leadingContent = { Icon(Icons.Default.Edit, null) },
-                modifier = Modifier.clickable {
-                    rootNavController.navigate("editProfile")
-                }
-            )
+            Card {
+                Column {
+                    ListItem(
+                        headlineContent = { Text("Editar perfil") },
+                        leadingContent = { Icon(Icons.Default.Edit, null) },
+                        modifier = Modifier.clickable {
+                            rootNavController.navigate("editProfile")
+                        }
+                    )
 
-            ListItem(
-                headlineContent = { Text("Alterar palavra-passe") },
-                leadingContent = { Icon(Icons.Default.Lock, null) },
-                modifier = Modifier.clickable {
-                    rootNavController.navigate("changePassword")
-                }
-            )
+                    Divider()
 
-            Divider()
+                    ListItem(
+                        headlineContent = { Text("Alterar palavra-passe") },
+                        leadingContent = { Icon(Icons.Default.Lock, null) },
+                        modifier = Modifier.clickable {
+                            rootNavController.navigate("changePassword")
+                        }
+                    )
+                }
+            }
 
             /* ---------- SESSÃO ---------- */
             Text("Sessão", style = MaterialTheme.typography.titleSmall)
 
-            ListItem(
-                headlineContent = {
-                    Text("Terminar sessão", color = MaterialTheme.colorScheme.error)
-                },
-                leadingContent = {
-                    Icon(Icons.Default.Logout, null, tint = MaterialTheme.colorScheme.error)
-                },
-                modifier = Modifier.clickable {
-                    FirebaseAuth.getInstance().signOut()
-                    rootNavController.navigate("login") {
-                        popUpTo(0)
+            Card {
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            "Terminar sessão",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    leadingContent = {
+                        Icon(
+                            Icons.Default.Logout,
+                            null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        FirebaseAuth.getInstance().signOut()
+                        rootNavController.navigate("login") {
+                            popUpTo(0)
+                        }
                     }
-                }
-            )
+                )
+            }
 
             vm.message?.let {
-                Spacer(Modifier.height(8.dp))
-                Text(it, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    it,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

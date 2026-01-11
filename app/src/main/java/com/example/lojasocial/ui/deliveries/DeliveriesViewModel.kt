@@ -46,6 +46,28 @@ class DeliveriesViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun updateDelivery(delivery: Delivery) {
+        viewModelScope.launch {
+            try {
+                DeliveryRepository.update(delivery)
+                load()
+            } catch (e: Exception) {
+                error = e.message ?: "Erro ao atualizar entrega"
+            }
+        }
+    }
+
+    fun toggleDeliveryState(delivery: Delivery) {
+        viewModelScope.launch {
+            try {
+                DeliveryRepository.updateState(delivery.id, !delivery.state)
+                load()
+            } catch (e: Exception) {
+                error = e.message ?: "Erro ao atualizar estado da entrega"
+            }
+        }
+    }
+
     fun removeDelivery(id: String) {
         viewModelScope.launch {
             try {
