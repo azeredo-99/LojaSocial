@@ -9,10 +9,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.lojasocial.ui.alerts.AlertsScreen
+import com.example.lojasocial.ui.alerts.AlertsViewModel
 import com.example.lojasocial.ui.beneficiaries.*
 import com.example.lojasocial.ui.deliveries.*
 import com.example.lojasocial.ui.donations.*
@@ -165,12 +168,10 @@ fun MainScaffold(
 
             /* ---------------- ALERTAS ---------------- */
             composable("alerts") {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Alertas em desenvolvimento")
-                }
+                AlertsScreen(
+                    nav = innerNavController,
+                    vm = viewModel<AlertsViewModel>()
+                )
             }
         }
     }

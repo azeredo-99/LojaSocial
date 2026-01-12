@@ -1,5 +1,6 @@
 package com.example.lojasocial.ui.deliveries
 
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +31,14 @@ fun DeliveriesHistoryScreen(
     nav: NavController,
     vm: DeliveriesViewModel = hiltViewModel()
 ) {
+    var filterState by remember { mutableStateOf<DeliveryFilter?>(DeliveryFilter.UNDELIVERED) }
+    var selectedMonth by remember { mutableStateOf<String?>(null) }
+    var showMonthFilterDialog by remember { mutableStateOf(false) }
+
+    // Temporary filter states for the dialog
+    var tempFilterState by remember { mutableStateOf<DeliveryFilter?>(DeliveryFilter.UNDELIVERED) }
+    var tempSelectedMonth by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         vm.load()
     }
@@ -46,10 +55,62 @@ fun DeliveriesHistoryScreen(
         }
     }
 
+    // Apply filter
+    val filteredDeliveries = remember(sortedDeliveries, filterState, selectedMonth) {
+        var result = sortedDeliveries
+
+        // Apply status filter if set
+        when (filterState) {
+            DeliveryFilter.DELIVERED -> result = result.filter { it.state }
+            DeliveryFilter.UNDELIVERED -> result = result.filter { !it.state }
+            null -> { } // No status filter applied
+        }
+
+        // Apply month filter if set
+        if (selectedMonth != null) {
+            result = result.filter { delivery ->
+                val monthYear = try {
+                    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    val date = dateFormat.parse(delivery.date)
+                    if (date != null) {
+                        val cal = Calendar.getInstance()
+                        cal.time = date
+                        String.format("%02d/%04d", cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR))
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+                monthYear == selectedMonth
+            }
+        }
+
+        result
+    }
+
+    // Get available months for all deliveries (not just undelivered)
+    val availableMonths = remember(sortedDeliveries) {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        sortedDeliveries
+            .mapNotNull { delivery ->
+                try {
+                    val date = dateFormat.parse(delivery.date)
+                    if (date != null) {
+                        val cal = Calendar.getInstance()
+                        cal.time = date
+                        String.format("%02d/%04d", cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR))
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            .distinct()
+            .sorted()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Histórico de Entregas") },
+                title = { Text("Entregas") },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
@@ -61,51 +122,219 @@ fun DeliveriesHistoryScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    // Initialize temp states with current filter values
+                    tempFilterState = filterState
+                    tempSelectedMonth = selectedMonth
+                    showMonthFilterDialog = true
+                },
+                contentColor = Color.White,
+                shape = MaterialTheme.shapes.extraLarge // Makes it round
+            ) {
+                Icon(
+                    Icons.Default.FilterList,
+                    contentDescription = "Filtros"
+                )
+            }
         }
     ) { padding ->
-
-        when {
-            vm.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            when {
+                vm.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
 
-            vm.deliveries.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Não existem entregas registadas")
+                filteredDeliveries.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Ainda não existem entregas registadas")
+                    }
                 }
-            }
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(padding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(sortedDeliveries) { delivery ->
-                        DeliveryHistoryItem(
-                            delivery = delivery,
-                            onToggleState = { vm.toggleDeliveryState(delivery) },
-                            onEdit = { nav.navigate("editDelivery/${delivery.id}") },
-                            onDelete = { vm.removeDelivery(delivery.id) }
-                        )
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp), // Padding for FAB
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filteredDeliveries) { delivery ->
+                            DeliveryHistoryItem(
+                                delivery = delivery,
+                                onToggleState = { vm.toggleDeliveryState(delivery) },
+                                onEdit = { nav.navigate("editDelivery/${delivery.id}") },
+                                onDelete = { vm.removeDelivery(delivery.id) }
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+    // Filter dialog
+    if (showMonthFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showMonthFilterDialog = false },
+            icon = {
+                Icon(Icons.Default.FilterList, contentDescription = null)
+            },
+            title = {
+                Text("Filtrar entregas")
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "Estado",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    // All option
+                    FilterChip(
+                        selected = tempFilterState == null && tempSelectedMonth == null,
+                        onClick = {
+                            tempFilterState = null
+                            tempSelectedMonth = null
+                        },
+                        label = { Text("Todas (${sortedDeliveries.size})") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    // Delivered option
+                    FilterChip(
+                        selected = tempFilterState == DeliveryFilter.DELIVERED,
+                        onClick = {
+                            tempFilterState = if (tempFilterState == DeliveryFilter.DELIVERED) null else DeliveryFilter.DELIVERED
+                        },
+                        label = { Text("Entregues (${sortedDeliveries.count { it.state }})") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    // Undelivered option
+                    FilterChip(
+                        selected = tempFilterState == DeliveryFilter.UNDELIVERED,
+                        onClick = {
+                            tempFilterState = if (tempFilterState == DeliveryFilter.UNDELIVERED) null else DeliveryFilter.UNDELIVERED
+                        },
+                        label = { Text("Por entregar (${sortedDeliveries.count { !it.state }})") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    // Month filters (only show if there are undelivered items)
+                    if (availableMonths.isNotEmpty()) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                        Text(
+                            "Filtrar por mês",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        // Scrollable month list
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(availableMonths) { month ->
+                                FilterChip(
+                                    selected = tempSelectedMonth == month,
+                                    onClick = {
+                                        tempSelectedMonth = if (tempSelectedMonth == month) null else month
+                                    },
+                                    label = { Text(month) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // Apply the filters
+                        filterState = tempFilterState
+                        selectedMonth = tempSelectedMonth
+                        showMonthFilterDialog = false
+                    }
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showMonthFilterDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+}
+
+enum class DeliveryFilter {
+    DELIVERED, UNDELIVERED
 }
 
 @Composable
@@ -140,7 +369,7 @@ private fun DeliveryHistoryItem(
         }
     }
 
-    val showWarning = !delivery.state && daysUntilDelivery != null && daysUntilDelivery in 0..2
+    val showWarning = !delivery.state && daysUntilDelivery != null && daysUntilDelivery <= 2
 
     // Color schemes for delivered (green) and undelivered (neutral blue-gray)
     val deliveredContainerColor = Color(0xFF4CAF50).copy(alpha = 0.2f)
@@ -169,12 +398,16 @@ private fun DeliveryHistoryItem(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Warning banner for upcoming deliveries
+            // Warning banner for upcoming deliveries or late deliveries
             if (showWarning) {
+                val isLate = daysUntilDelivery!! < 0
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
-                    color = Color(0xFFFFA726).copy(alpha = 0.25f)
+                    color = if (isLate)
+                        Color(0xFFEF5350).copy(alpha = 0.25f)
+                    else
+                        Color(0xFFFFA726).copy(alpha = 0.25f)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -184,17 +417,18 @@ private fun DeliveryHistoryItem(
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = null,
-                            tint = Color(0xFFF57C00),
+                            tint = if (isLate) Color(0xFFC62828) else Color(0xFFF57C00),
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
-                            text = when (daysUntilDelivery) {
-                                0 -> "Entrega hoje!"
-                                1 -> "Falta 1 dia"
+                            text = when {
+                                isLate -> "Atrasado!"
+                                daysUntilDelivery == 0 -> "Entrega hoje!"
+                                daysUntilDelivery == 1 -> "Falta 1 dia"
                                 else -> "Faltam $daysUntilDelivery dias"
                             },
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFFF57C00)
+                            color = if (isLate) Color(0xFFC62828) else Color(0xFFF57C00)
                         )
                     }
                 }
