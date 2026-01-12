@@ -88,7 +88,7 @@ fun AlertsScreen(
                 }
 
                 is ResultWrapper.Success -> {
-                    // opcional: podes mostrar uma mensagem; por agora não faz nada
+
                 }
 
                 null -> Unit
