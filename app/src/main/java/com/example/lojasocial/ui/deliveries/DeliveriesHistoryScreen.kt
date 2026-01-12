@@ -31,12 +31,12 @@ fun DeliveriesHistoryScreen(
     nav: NavController,
     vm: DeliveriesViewModel = hiltViewModel()
 ) {
-    var filterState by remember { mutableStateOf<DeliveryFilter?>(null) }
+    var filterState by remember { mutableStateOf<DeliveryFilter?>(DeliveryFilter.UNDELIVERED) }
     var selectedMonth by remember { mutableStateOf<String?>(null) }
     var showMonthFilterDialog by remember { mutableStateOf(false) }
 
     // Temporary filter states for the dialog
-    var tempFilterState by remember { mutableStateOf<DeliveryFilter?>(null) }
+    var tempFilterState by remember { mutableStateOf<DeliveryFilter?>(DeliveryFilter.UNDELIVERED) }
     var tempSelectedMonth by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
