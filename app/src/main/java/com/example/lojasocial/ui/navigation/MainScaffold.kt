@@ -133,6 +133,14 @@ fun MainScaffold(
                 AddDonationScreen(nav = innerNavController)
             }
 
+            composable("editDonation/{id}") { backStack ->
+                val id = backStack.arguments?.getString("id") ?: return@composable
+                EditDonationScreen(
+                    donationId = id,
+                    nav = innerNavController
+                )
+            }
+
             /* ---------------- RELATÓRIOS ---------------- */
             composable("reports") {
                 ReportsScreen(nav = innerNavController)
