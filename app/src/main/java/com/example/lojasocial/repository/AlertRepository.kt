@@ -6,6 +6,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
+import kotlin.math.abs
+
 
 object AlertRepository {
 
@@ -54,6 +56,7 @@ object AlertRepository {
             var created = 0
             created += generateFromProducts(lowStockThreshold, expiringSoonDays)
             created += generateFromDeliveries(deliveryOverdueDays)
+            created += checkOverdueDeliveries(deliveryOverdueDays)
             ResultWrapper.Success(created)
         } catch (e: Exception) {
             ResultWrapper.Error(e)
@@ -95,7 +98,7 @@ object AlertRepository {
                     entityId = productId,
                     title = "Stock baixo",
                     message = "O produto $name está com stock baixo (quantidade atual: $quantity).",
-                    severity = "PERIGO"
+                    severity = "AVISO"
                 )
             }
 
@@ -107,7 +110,7 @@ object AlertRepository {
                         entityId = productId,
                         title = "Produto fora de validade",
                         message = "O produto $name encontra-se fora de validade.",
-                        severity = "CRITICo"
+                        severity = "CRITICO"
                     )
                 } else {
                     val daysUntil = ((expireDateMs - now) / dayMs).toInt()
@@ -181,6 +184,7 @@ object AlertRepository {
                 continue
             }
 
+            /**
             // Stock insuficiente na entrega
             val itemsList = items.mapNotNull { it as? Map<*, *> }
             for (item in itemsList) {
@@ -198,7 +202,7 @@ object AlertRepository {
                         severity = "CRITICO"
                     )
                 }
-            }
+            }**/
 
             // Entrega sem beneficiário
             if (beneficiary.isBlank()) {
@@ -214,6 +218,83 @@ object AlertRepository {
 
         return created
     }
+
+
+    suspend fun checkOverdueDeliveries(
+        overdueDays: Int = 2
+    ): Int {
+        var created = 0
+
+        val deliveriesSnap = db.collection(DELIVERIES).get().await()
+
+        for (d in deliveriesSnap.documents) {
+            val data = d.data ?: continue
+
+            val deliveryId = d.id
+            val beneficiary = data["beneficiaryName"] as? String ?: ""
+            val isDelivered = data["state"] as? Boolean ?: false
+            val dateStr = data["date"] as? String ?: ""
+
+            // Ignore completed deliveries
+            if (isDelivered) continue
+
+            val deliveryDateMs = parseDateToMillis(dateStr) ?: continue
+
+            // Truncate today's date to 00:00:00
+            val todayMs = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+
+            val dayMs = 1000L * 60 * 60 * 24
+            val daysDiff = ((todayMs - deliveryDateMs) / dayMs).toInt()
+
+            when {
+                // LATE
+                daysDiff > 0 -> {
+                    val messageText = if (daysDiff == 1) "$daysDiff dia" else "$daysDiff dias"
+                    created += createIfNotExists(
+                        type = "Entrega atrasada",
+                        entityId = deliveryId,
+                        title = "Entrega atrasada",
+                        message = "A entrega ao beneficiário $beneficiary encontra-se atrasada por $messageText.",
+                        severity = "CRÍTICO"
+                    )
+                }
+
+                // TODAY
+                daysDiff == 0 -> {
+                    created += createIfNotExists(
+                        type = "Entrega Hoje",
+                        entityId = deliveryId,
+                        title = "Entrega Hoje",
+                        message = "A entrega ao beneficiário $beneficiary é hoje.",
+                        severity = "AVISO"
+                    )
+                }
+
+                // 1 or 2 days away
+                daysDiff in -2..-1 -> {
+                    val days = abs(daysDiff) // convert to positive
+                    val messageText = if (days == 1) "$days dia" else "$days dias"
+                    created += createIfNotExists(
+                        type = "Entrega em $days dias",
+                        entityId = deliveryId,
+                        title = "Entrega em $days dia(s)",
+                        message = "A entrega ao beneficiário $beneficiary está marcada para daqui a $messageText.",
+                        severity = "AVISO"
+                    )
+                }
+            }
+        }
+
+        return created
+    }
+
+
+
 
     /* ===================== HELPERS ===================== */
 
