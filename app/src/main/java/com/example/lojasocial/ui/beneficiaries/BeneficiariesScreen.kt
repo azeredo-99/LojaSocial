@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.lojasocial.models.StudentApplication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +25,7 @@ fun BeneficiariesScreen(
 
     LaunchedEffect(Unit) {
         vm.load()
+        vm.loadPendingApplications()
     }
 
     val filtered = vm.beneficiaries.filter {
@@ -55,67 +57,133 @@ fun BeneficiariesScreen(
         }
     ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-
-            /* Pesquisa */
-            OutlinedTextField(
-                value = search,
-                onValueChange = { search = it },
-                label = { Text("Pesquisar") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            /* 🔄 LOADING */
-            if (vm.isLoading) {
+        when {
+            vm.isLoading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
-                return@Column
             }
 
-            /* ERRO */
-            vm.errorMessage?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                return@Column
-            }
-
-            /* VAZIO */
-            if (filtered.isEmpty()) {
+            vm.errorMessage != null -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.TopCenter
                 ) {
-                    Text("Nenhum beneficiário encontrado")
-                }
-                return@Column
-            }
-
-            /* LISTA */
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(filtered) { beneficiary ->
-                    BeneficiaryItem(
-                        beneficiary = beneficiary,
-                        onClick = {
-                            nav.navigate("beneficiaryDetail/${beneficiary.id}")
-                        }
+                    Text(
+                        text = vm.errorMessage ?: "Ocorreu um erro",
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    item {
+                        OutlinedTextField(
+                            value = search,
+                            onValueChange = { search = it },
+                            label = { Text("Pesquisar") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                    }
+
+                    if (vm.pendingApplications.isNotEmpty()) {
+                        item {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "Candidaturas pendentes",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        items(
+                            items = vm.pendingApplications,
+                            key = { it.id }
+                        ) { app ->
+                            StudentApplicationItem(
+                                app = app,
+                                onAccept = { vm.acceptApplication(app) },
+                                onReject = { vm.rejectApplication(app.id) }
+                            )
+                        }
+
+                        item {
+                            Spacer(Modifier.height(4.dp))
+                            HorizontalDivider()
+                            Spacer(Modifier.height(4.dp))
+                        }
+                    }
+
+                    if (filtered.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Nenhum beneficiário encontrado")
+                            }
+                        }
+                    } else {
+                        items(
+                            items = filtered,
+                            key = { it.id }
+                        ) { beneficiary ->
+                            BeneficiaryItem(
+                                beneficiary = beneficiary,
+                                onClick = { nav.navigate("beneficiaryDetail/${beneficiary.id}") }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StudentApplicationItem(
+    app: StudentApplication,
+    onAccept: () -> Unit,
+    onReject: () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(app.nome, style = MaterialTheme.typography.titleMedium)
+            Text("N.º aluno: ${app.numeroAluno}")
+            Text("Curso: ${app.curso}")
+            Text("Email: ${app.email}")
+
+            if (app.telemovel.isNotBlank()) Text("Telemóvel: ${app.telemovel}")
+            if (app.mensagem.isNotBlank()) Text("Mensagem: ${app.mensagem}")
+
+            Spacer(Modifier.height(6.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onAccept) { Text("Aceitar") }
+                OutlinedButton(onClick = onReject) { Text("Rejeitar") }
             }
         }
     }

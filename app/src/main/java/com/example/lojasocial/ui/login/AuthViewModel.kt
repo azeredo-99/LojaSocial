@@ -3,10 +3,10 @@ package com.example.lojasocial.ui.login
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.example.lojasocial.models.Employee
 import com.example.lojasocial.repository.AuthRepository
 import com.example.lojasocial.repository.ResultWrapper
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +20,10 @@ class AuthViewModel @Inject constructor(
     var name by mutableStateOf("")
 
     var uiState by mutableStateOf<ResultWrapper<*>?>(null)
+
+    fun clearState() {
+        uiState = null
+    }
 
     fun login() = viewModelScope.launch {
         uiState = ResultWrapper.Loading

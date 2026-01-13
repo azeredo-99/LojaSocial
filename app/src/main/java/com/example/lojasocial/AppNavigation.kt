@@ -28,14 +28,31 @@ fun AppNavigation(
             EntryScreen(nav = navController)
         }
 
-        /* ---------- AUTH ---------- */
+        /* ---------- LOGIN (COLABORADOR) ---------- */
         composable("login") {
             LoginScreen(
                 nav = navController,
-                vm = hiltViewModel()
+                vm = hiltViewModel(),
+                successRoute = "main",
+                title = "Login do colaborador",
+                showRegisterOption = false,
+                signOutOnBack = false
             )
         }
 
+        /* ---------- LOGIN (ESTUDANTE) ---------- */
+        composable("loginStudent") {
+            LoginScreen(
+                nav = navController,
+                vm = hiltViewModel(),
+                successRoute = "studentApplication",
+                title = "Login do estudante",
+                showRegisterOption = true,
+                signOutOnBack = true
+            )
+        }
+
+        /* ---------- AUTH ---------- */
         composable("register") {
             RegisterScreen(
                 nav = navController,

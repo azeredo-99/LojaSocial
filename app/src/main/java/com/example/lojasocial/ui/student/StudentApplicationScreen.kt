@@ -7,13 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -31,6 +26,8 @@ import androidx.navigation.NavController
 import com.example.lojasocial.models.StudentApplication
 import com.example.lojasocial.repository.ResultWrapper
 import com.example.lojasocial.repository.StudentApplicationRepository
+
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,23 +45,21 @@ fun StudentApplicationScreen(nav: NavController) {
     var loading by remember { mutableStateOf(false) }
     var erro by remember { mutableStateOf<String?>(null) }
 
+    fun terminarSessao() {
+        FirebaseAuth.getInstance().signOut()
+        nav.navigate("entry") {
+            popUpTo("entry") { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Candidatura") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            // NÃO usar popBackStack, porque "entry" foi removido do backstack
-                            nav.navigate("entry") {
-                                popUpTo("entry") { inclusive = true }
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                actions = {
+                    Button(onClick = { terminarSessao() }) {
+                        Text("Terminar sessão")
                     }
                 }
             )
@@ -154,10 +149,10 @@ fun StudentApplicationScreen(nav: NavController) {
 
                     scope.launch {
                         when (val res = StudentApplicationRepository.submit(app)) {
-                            is ResultWrapper.Success -> {
-                                // Vai para ecrã de confirmação e remove a candidatura do backstack
+                            is ResultWrapper.Success<*> -> {
                                 nav.navigate("applicationSubmitted") {
                                     popUpTo("studentApplication") { inclusive = true }
+                                    launchSingleTop = true
                                 }
                             }
                             is ResultWrapper.Error -> {
@@ -171,11 +166,7 @@ fun StudentApplicationScreen(nav: NavController) {
                 enabled = !loading,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (loading) {
-                    CircularProgressIndicator(modifier = Modifier.height(18.dp))
-                } else {
-                    Text("Submeter candidatura")
-                }
+                Text(if (loading) "A enviar..." else "Submeter candidatura")
             }
         }
     }

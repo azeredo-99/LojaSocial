@@ -10,6 +10,6 @@ data class StudentApplication(
     val email: String = "",
     val telemovel: String = "",
     val mensagem: String = "",
-    val estado: String = "PENDENTE", // PENDENTE | APROVADA | REJEITADA
+    val estado: String = "",
     val createdAt: Timestamp? = null
 )

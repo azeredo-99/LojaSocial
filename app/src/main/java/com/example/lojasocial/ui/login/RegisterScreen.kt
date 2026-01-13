@@ -24,7 +24,7 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("Criar Conta", style = MaterialTheme.typography.headlineMedium)
+        Text("Criar conta", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(Modifier.height(20.dp))
 
@@ -72,13 +72,19 @@ fun RegisterScreen(
 
         when (uiState) {
             is ResultWrapper.Loading -> CircularProgressIndicator()
-            is ResultWrapper.Error -> Text("Erro: ${uiState.exception.message}")
+
+            is ResultWrapper.Error -> Text(
+                text = "Erro: ${uiState.exception.message}",
+                color = MaterialTheme.colorScheme.error
+            )
+
             is ResultWrapper.Success -> {
-                nav.navigate("home") {
+                nav.navigate("loginStudent") {
                     popUpTo("register") { inclusive = true }
                 }
             }
-            else -> {}
+
+            else -> Unit
         }
     }
 }

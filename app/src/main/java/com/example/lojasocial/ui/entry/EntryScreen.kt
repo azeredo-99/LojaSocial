@@ -61,7 +61,7 @@ fun EntryScreen(
 
             OutlinedButton(
                 onClick = {
-                    nav.navigate("studentApplication") {
+                    nav.navigate("loginStudent") {
                         popUpTo("entry") { inclusive = true }
                     }
                 },

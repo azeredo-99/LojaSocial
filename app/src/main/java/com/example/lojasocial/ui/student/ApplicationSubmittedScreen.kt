@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ApplicationSubmittedScreen(nav: NavController) {
@@ -44,13 +45,16 @@ fun ApplicationSubmittedScreen(nav: NavController) {
 
             Button(
                 onClick = {
+                    FirebaseAuth.getInstance().signOut()
+
                     nav.navigate("entry") {
                         popUpTo("entry") { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Voltar ao início")
+                Text("Terminar sessão")
             }
         }
     }

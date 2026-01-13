@@ -14,23 +14,26 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lojasocial.R
 import com.example.lojasocial.repository.ResultWrapper
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     nav: NavController,
-    vm: AuthViewModel
+    vm: AuthViewModel,
+    successRoute: String,
+    title: String,
+    showRegisterOption: Boolean,
+    signOutOnBack: Boolean
 ) {
     val uiState = vm.uiState
 
     LaunchedEffect(Unit) {
-        val user = com.google.firebase.auth.FirebaseAuth
-            .getInstance()
-            .currentUser
-
+        val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            nav.navigate("main") {
+            nav.navigate(successRoute) {
                 popUpTo("login") { inclusive = true }
+                popUpTo("loginStudent") { inclusive = true }
             }
         }
     }
@@ -38,12 +41,21 @@ fun LoginScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Login do colaborador") },
+                title = { Text(title) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
+                            vm.clearState()
+
+                            if (signOutOnBack) {
+                                FirebaseAuth.getInstance().signOut()
+                                vm.email = ""
+                                vm.password = ""
+                                vm.name = ""
+                            }
+
                             nav.navigate("entry") {
-                                popUpTo("login") { inclusive = true }
+                                popUpTo("entry") { inclusive = true }
                             }
                         }
                     ) {
@@ -110,10 +122,26 @@ fun LoginScreen(
                 Text("Entrar")
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
-            TextButton(onClick = { nav.navigate("recover") }) {
+            TextButton(
+                onClick = {
+                    vm.clearState()
+                    nav.navigate("recover")
+                }
+            ) {
                 Text("Recuperar password")
+            }
+
+            if (showRegisterOption) {
+                TextButton(
+                    onClick = {
+                        vm.clearState()
+                        nav.navigate("register")
+                    }
+                ) {
+                    Text("Criar conta")
+                }
             }
 
             Spacer(Modifier.height(24.dp))
@@ -127,8 +155,10 @@ fun LoginScreen(
                 )
 
                 is ResultWrapper.Success<*> -> {
-                    nav.navigate("main") {
+                    vm.clearState()
+                    nav.navigate(successRoute) {
                         popUpTo("login") { inclusive = true }
+                        popUpTo("loginStudent") { inclusive = true }
                     }
                 }
 
