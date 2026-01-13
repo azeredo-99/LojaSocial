@@ -107,7 +107,7 @@ fun BeneficiariesScreen(
                         item {
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                text = "Candidaturas pendentes",
+                                text = "Candidaturas Pendentes",
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
