@@ -70,8 +70,8 @@ fun AlertsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = { vm.generate() }) { Text("Gerar") }
-                OutlinedButton(onClick = { vm.loadActive() }) { Text("Atualizar") }
+                Button(onClick = { vm.generate() }) { Text("Atualizar") }
+                //OutlinedButton(onClick = { vm.loadActive() }) { Text("Meow") }
             }
 
             Spacer(Modifier.height(12.dp))
@@ -133,7 +133,7 @@ private fun AlertCard(
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onResolve) { Text("Resolver") }
+                TextButton(onClick = onResolve) { Text("Marcar como resolvido") }
             }
         }
     }

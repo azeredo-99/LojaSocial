@@ -46,18 +46,21 @@ fun InventoryScreen(
                     }
                 },
                 actions = {
-                    if (vm.hasExpiryAlerts()) {
+                    val lowStockCount = vm.products.count { it.quantity < 5 }
+                    val totalAlerts = vm.getExpiredCount() + vm.getExpiringSoonCount() + lowStockCount
+
+                    if (vm.hasExpiryAlerts() || lowStockCount > 0) {
                         BadgedBox(
                             badge = {
                                 Badge {
-                                    Text("${vm.getExpiredCount() + vm.getExpiringSoonCount()}")
+                                    Text("$totalAlerts")
                                 }
                             }
                         ) {
                             IconButton(onClick = { nav.navigate("alerts") }) {
                                 Icon(
                                     imageVector = Icons.Default.Warning,
-                                    contentDescription = "Alertas",
+                                    contentDescription = "Alertas de validade",
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -127,6 +130,7 @@ fun InventoryScreen(
             }
         }
 
+        // Dialog de confirmação de exclusão
         if (showDeleteDialog && productToDelete != null) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
@@ -193,7 +197,7 @@ fun InventoryProductCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
+            // Cabeçalho com nome e botão de apagar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -216,61 +220,185 @@ fun InventoryProductCard(
 
             HorizontalDivider()
 
-            Column {
-                InfoRow("Categoria", product.category)
-                InfoRow("Unidade", product.unit)
+            // Informações do produto
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    InfoRow(label = "Categoria", value = product.category)
+                    InfoRow(label = "Unidade", value = product.unit)
 
-                product.expireDate?.let { timestamp ->
-                    val calendar = Calendar.getInstance().apply {
-                        timeInMillis = timestamp
+                    // Informação de validade
+                    product.expireDate?.let { timestamp ->
+                        val calendar = Calendar.getInstance().apply {
+                            timeInMillis = timestamp
+                        }
+                        val dateStr = "${calendar.get(Calendar.DAY_OF_MONTH)}/" +
+                            "${calendar.get(Calendar.MONTH) + 1}/" +
+                            calendar.get(Calendar.YEAR)
+
+                        val (label, value, color) = when {
+                            product.isExpired() -> Triple(
+                                "Expirou em",
+                                dateStr,
+                                MaterialTheme.colorScheme.error
+                            )
+                            product.isExpiringSoon() -> Triple(
+                                "Vence em ${product.daysUntilExpiry()} dia(s)",
+                                dateStr,
+                                Color(0xFFFF9800)
+                            )
+                            else -> Triple(
+                                "Validade",
+                                dateStr,
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            if (product.isExpired() || product.isExpiringSoon()) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = color
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = value,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = color
+                                )
+                            }
+                        }
                     }
-                    val dateStr =
-                        "${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}"
-
-                    val (label, color) = when {
-                        product.isExpired() -> "Expirou em" to MaterialTheme.colorScheme.error
-                        product.isExpiringSoon() -> "Vence em ${product.daysUntilExpiry()} dia(s)" to Color(0xFFFF9800)
-                        else -> "Validade" to MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-
-                    Spacer(Modifier.height(4.dp))
-                    Text(label, style = MaterialTheme.typography.labelSmall)
-                    Text(dateStr, color = color)
                 }
             }
 
             HorizontalDivider()
 
+            // Controlo de stock
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Stock", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Stock",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    IconButton(onClick = onDecrement, enabled = product.quantity > 0) {
-                        Icon(Icons.Default.Remove, contentDescription = "Diminuir")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Botão diminuir
+                    FilledTonalIconButton(
+                        onClick = onDecrement,
+                        enabled = product.quantity > 0,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = Color(0xFF08502C),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Diminuir quantidade"
+                        )
                     }
-                    Text("${product.quantity}", style = MaterialTheme.typography.headlineSmall)
-                    IconButton(onClick = onIncrement) {
-                        Icon(Icons.Default.Add, contentDescription = "Aumentar")
+
+                    // Quantidade
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(
+                            text = "${product.quantity}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+
+                    // Botão aumentar
+                    FilledTonalIconButton(
+                        onClick = onIncrement,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = Color(0xFF08502C),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Aumentar quantidade"
+                        )
                     }
                 }
             }
 
-            if (product.quantity == 0) {
-                Text(
-                    "Produto esgotado!",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            } else if (product.quantity < 5) {
-                Text(
-                    "Stock baixo!",
-                    color = Color(0xFFFF9800),
-                    style = MaterialTheme.typography.bodySmall
-                )
+            // Alerta de stock baixo
+            if (product.quantity < 5 && product.quantity > 0) {
+                Surface(
+                    color = Color(0xFFFFF3E0),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color(0xFFFF9800),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Stock baixo!",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFFF9800)
+                        )
+                    }
+                }
+            } else if (product.quantity == 0) {
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Produto esgotado!",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             }
         }
     }
@@ -279,7 +407,14 @@ fun InventoryProductCard(
 @Composable
 private fun InfoRow(label: String, value: String) {
     Column {
-        Text(label, style = MaterialTheme.typography.labelSmall)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
