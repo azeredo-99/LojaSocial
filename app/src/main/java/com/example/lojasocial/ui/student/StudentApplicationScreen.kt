@@ -26,7 +26,6 @@ import androidx.navigation.NavController
 import com.example.lojasocial.models.StudentApplication
 import com.example.lojasocial.repository.ResultWrapper
 import com.example.lojasocial.repository.StudentApplicationRepository
-
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -136,9 +135,16 @@ fun StudentApplicationScreen(nav: NavController) {
                         return@Button
                     }
 
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid.isNullOrBlank()) {
+                        erro = "Sessão inválida. Por favor, volta a iniciar sessão."
+                        return@Button
+                    }
+
                     loading = true
 
                     val app = StudentApplication(
+                        userId = uid,
                         nome = nome.trim(),
                         numeroAluno = numeroAluno.trim(),
                         curso = curso.trim(),

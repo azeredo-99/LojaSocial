@@ -13,6 +13,7 @@ import com.example.lojasocial.ui.profile.EditProfileScreen
 import com.example.lojasocial.ui.profile.ProfileViewModel
 import com.example.lojasocial.ui.student.ApplicationSubmittedScreen
 import com.example.lojasocial.ui.student.StudentApplicationScreen
+import com.example.lojasocial.ui.student.StudentStatusScreen
 
 @Composable
 fun AppNavigation(
@@ -45,7 +46,7 @@ fun AppNavigation(
             LoginScreen(
                 nav = navController,
                 vm = hiltViewModel(),
-                successRoute = "studentApplication",
+                successRoute = "studentStatus",
                 title = "Login do estudante",
                 showRegisterOption = true,
                 signOutOnBack = true
@@ -65,6 +66,11 @@ fun AppNavigation(
                 nav = navController,
                 vm = hiltViewModel()
             )
+        }
+
+        /* ---------- ESTADO DA CANDIDATURA (ESTUDANTE) ---------- */
+        composable("studentStatus") {
+            StudentStatusScreen(nav = navController)
         }
 
         /* ---------- CANDIDATURA (ESTUDANTE) ---------- */

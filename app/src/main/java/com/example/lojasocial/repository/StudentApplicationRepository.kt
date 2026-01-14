@@ -30,4 +30,22 @@ object StudentApplicationRepository {
             ResultWrapper.Error(e)
         }
     }
+
+    suspend fun getMyApplication(userId: String): ResultWrapper<StudentApplication?> {
+        return try {
+            val snap = db.collection(COLLECTION)
+                .whereEqualTo("userId", userId)
+                .orderBy("createdAt")
+                .limitToLast(1)
+                .get()
+                .await()
+
+            val doc = snap.documents.lastOrNull()
+            val app = doc?.toObject(StudentApplication::class.java)?.copy(id = doc.id)
+
+            ResultWrapper.Success(app)
+        } catch (e: Exception) {
+            ResultWrapper.Error(e)
+        }
+    }
 }
